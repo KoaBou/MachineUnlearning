@@ -18,7 +18,7 @@ def ZRFScore(model: Module, retrain: Module, forget: DataLoader):
     model_preds = []
     retrain_preds = []
 
-    global DEVICE
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     model.to(DEVICE)
 
     with torch.no_grad():
@@ -37,6 +37,7 @@ def ZRFScore(model: Module, retrain: Module, forget: DataLoader):
 
 class MIA():
     def __init__(self, models: List, retain: DataLoader, forget: DataLoader, test: DataLoader):
+        self.DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.models = models
         self.retain_prob = self.collect_prob(retain)
         self.forget_prob = self.collect_prob(forget)
@@ -47,7 +48,7 @@ class MIA():
         for model in self.models:
             with torch.no_grad():
                 for inputs, labels in loader:
-                    inputs = inputs.to(DEVICE)
+                    inputs = inputs.to(self.DEVICE)
                     outputs = model(inputs)
                     prob.append(*F.softmax(outputs, dim=1))
             prob = torch.cat(prob, dim=0)
