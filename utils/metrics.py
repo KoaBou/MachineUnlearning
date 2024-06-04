@@ -50,7 +50,7 @@ class MIA():
                 for inputs, labels in loader:
                     inputs = inputs.to(self.DEVICE)
                     outputs = model(inputs)
-                    prob.append(*F.softmax(outputs, dim=1))
+                    prob.append(F.softmax(outputs, dim=-1).data)
             prob = torch.cat(prob, dim=0)
         return prob
 
@@ -73,3 +73,13 @@ class MIA():
         return result.mean()
 
 
+if __name__ == '__main__':
+    from models.models import *
+    DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(DEVICE)
+    model = get_resnet18().to(DEVICE)
+    dataset = torchvision.datasets.CIFAR10(root="../data", train=True, transform=torchvision.transforms.ToTensor())
+    loader = DataLoader(dataset, batch_size=256)
+    mia = MIA([model], loader, loader, loader)
+    mia.get_MIA_data()
+    print(mia.get_MIA_prob())
