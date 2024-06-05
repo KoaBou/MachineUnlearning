@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import DataLoader, Dataset, TensorDataset
+import random
 
 def get_class_unlearn_set(dataset: Dataset, unlearn_class: int):
     unlearn_image = []
@@ -38,7 +39,7 @@ class CustomDataset(Dataset):
 
 
 class UnlearnDataset(Dataset):
-    def __init__(self, retain: DataLoader, forget: DataLoader):
+    def __init__(self, retain: Dataset, forget: Dataset):
         super(UnlearnDataset, self).__init__()
         self.retain = retain
         self.forget = forget
@@ -59,16 +60,43 @@ class UnlearnDataset(Dataset):
             label = 0
             return image, label
 
+class AmnesiacDataset(Dataset):
+    def __init__(self, retain: Dataset, forget: Dataset, dataset: str = "cifar10"):
+        super(AmnesiacDataset, self).__init__()
+        self.retain = retain
+        self.forget = forget
+        self.retain_len = len(retain)
+        self.forget_len = len(forget)
+        self.len = self.retain_len + self.forget_len
+
+        if dataset == "cifar10":
+            self.num_classes = 10
+        elif dataset == "MUFAC":
+            self.num_classes = 8
+
+        self.classesList = list(range(0, self.num_classes))
+
+    def __len__(self):
+        return len(self)
+
+    def __getitem__(self, index):
+        if index < self.forget_len:
+            image = self.forget[index][0]
+            label = random.choice(self.classesList)
+        else:
+            image = self.retain[index][0]
+            label = self.retain[index][1]
+
+        return image, label
+
+
 if __name__ == '__main__':
     import torchvision
     dataset = torchvision.datasets.CIFAR10(root='../data', train=True, transform=torchvision.transforms.ToTensor())
 
-    unlearn_set, retain_set = get_random_unlearn_set(dataset, 50)
+    unlearn_set, retain_set = get_random_unlearn_set(dataset, 5)
 
-    # print(len(unlearn_set))
+    amnesiac_set = AmnesiacDataset(retain_set, unlearn_set)
 
-    unlearn_loader = DataLoader(unlearn_set, batch_size=64)
-
-    tmp = next(iter(unlearn_loader))
-
-    print(tmp[1])
+    for i in range(10):
+        print(amnesiac_set[i][1])
