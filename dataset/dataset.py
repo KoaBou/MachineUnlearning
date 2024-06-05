@@ -77,7 +77,7 @@ class AmnesiacDataset(Dataset):
         self.classesList = list(range(0, self.num_classes))
 
     def __len__(self):
-        return len(self.len)
+        return self.len
 
     def __getitem__(self, index):
         if index < self.forget_len:
