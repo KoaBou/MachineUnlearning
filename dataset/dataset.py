@@ -84,8 +84,8 @@ class AmnesiacDataset(Dataset):
             image = self.forget[index][0]
             label = random.choice(self.classesList)
         else:
-            image = self.retain[index][0]
-            label = self.retain[index][1]
+            image = self.retain[index-self.forget_len][0]
+            label = self.retain[index-self.forget_len][1]
 
         return image, label
 
