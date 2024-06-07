@@ -56,7 +56,7 @@ class UnlearnDataset(Dataset):
             label = 1
             return image, label
         else:
-            image = self.retain[index][0]
+            image = self.retain[index-self.forget_len][0]
             label = 0
             return image, label
 
@@ -94,9 +94,12 @@ if __name__ == '__main__':
     import torchvision
     dataset = torchvision.datasets.CIFAR10(root='../data', train=True, transform=torchvision.transforms.ToTensor())
 
-    unlearn_set, retain_set = get_random_unlearn_set(dataset, 5)
+    forget_set, retain_set = get_random_unlearn_set(dataset, 5000)
 
-    amnesiac_set = AmnesiacDataset(retain_set, unlearn_set)
+    unlearn_set = UnlearnDataset(retain_set, forget_set)
+
+    unlearn_loader = DataLoader(unlearn_set, shuffle=True, batch_size=64)
 
     for i in range(10):
-        print(amnesiac_set[i][1])
+        tmp = next(iter(unlearn_loader))
+        print(tmp[1])
