@@ -1,1 +1,1 @@
-# MachineUnlearning
+In this project, I participated in the NeurIPS 2023 competition focused on Machine Unlearning. The aim was to develop algorithms capable of "forgetting" specific data points used during the model training process while retaining the model's overall performance. I applied advanced techniques in PyTorch to optimize the unlearning mechanism and conducted thorough evaluations on large-scale datasets to measure the efficiency and effectiveness of the approach.
